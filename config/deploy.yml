@@ -7,7 +7,7 @@ image: caioabe/blog
 # Deploy to these servers.
 servers:
   web:
-    - demo.estilo7.com.br
+    - 5.161.243.148
   # job:
   #   hosts:
   #     - 192.168.0.1
@@ -16,8 +16,9 @@ servers:
 # Enable SSL auto certification via Let's Encrypt (and allow for multiple apps on one server).
 # Set ssl: false if using something like Cloudflare to terminate SSL (but keep host!).
 proxy:
-  ssl: true
-  host: blog.estilo7.com.br
+  false
+  # ssl: false
+  # host: alpha.estilo7.com.br
 
 # Credentials for your image host.
 registry:
