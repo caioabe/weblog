@@ -100,6 +100,12 @@ GEM
     concurrent-ruby (1.3.4)
     connection_pool (2.4.1)
     crass (1.0.6)
+    datadog (2.7.1)
+      datadog-ruby_core_source (~> 3.3)
+      libdatadog (~> 14.1.0.1.0)
+      libddwaf (~> 1.15.0.0.0)
+      msgpack
+    datadog-ruby_core_source (3.3.6)
     date (3.4.0)
     debug (1.9.2)
       irb (~> 1.10)
@@ -154,6 +160,19 @@ GEM
       thor (~> 1.3)
       zeitwerk (>= 2.6.18, < 3.0)
     language_server-protocol (3.17.0.3)
+    libdatadog (14.1.0.1.0)
+    libdatadog (14.1.0.1.0-aarch64-linux)
+    libdatadog (14.1.0.1.0-x86_64-linux)
+    libddwaf (1.15.0.0.0)
+      ffi (~> 1.0)
+    libddwaf (1.15.0.0.0-aarch64-linux)
+      ffi (~> 1.0)
+    libddwaf (1.15.0.0.0-arm64-darwin)
+      ffi (~> 1.0)
+    libddwaf (1.15.0.0.0-x86_64-darwin)
+      ffi (~> 1.0)
+    libddwaf (1.15.0.0.0-x86_64-linux)
+      ffi (~> 1.0)
     logger (1.6.1)
     loofah (2.23.1)
       crass (~> 1.0.2)
@@ -381,6 +400,7 @@ DEPENDENCIES
   bootsnap
   brakeman
   capybara
+  datadog
   debug
   image_processing (~> 1.2)
   importmap-rails
