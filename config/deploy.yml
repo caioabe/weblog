@@ -62,7 +62,7 @@ aliases:
 # Use a persistent storage volume for sqlite database files and local Active Storage files.
 # Recommended to change this to a mounted volume path that is backed up off server.
 volumes:
-  - "/mnt/volume-ash-1:/rails/storage"
+  - "/mnt/volume-ash-1:blog_storage"
   # - "blog_storage:/mnt/volume-ash-1"
   # - "blog_storage:/rails/storage"
 
