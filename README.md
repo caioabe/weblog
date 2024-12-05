@@ -22,3 +22,8 @@ Things you may want to cover:
 - Deployment instructions
 
 - ...
+
+
+# TODO:
+- [ ] Think about data backup
+- [ ] Install open telemetry
