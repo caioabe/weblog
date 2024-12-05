@@ -18,13 +18,17 @@
     <link rel="apple-touch-icon" href="/icon.png">
 
     <%# Includes all stylesheet files in app/views/stylesheets %>
+    <%= stylesheet_link_tag "tailwind", "inter-font", "data-turbo-track": "reload" %>
     <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag "tailwind", "inter-font", "data-turbo-track": "reload" %>
     <%= stylesheet_link_tag "https://cdn.simplecss.org/simple.css" %>
     <%= javascript_importmap_tags %>
   </head>
 
   <body>
-    <%= button_to "Sign out", session_path, method: :delete if authenticated? %>
+    <div class="mt-10">
+      <%= button_to "Sign out", session_path, method: :delete if authenticated? %>
+    </div>
     <%= yield %>
   </body>
 </html>
