@@ -1,0 +1,116 @@
+#!/bin/bash -x
+
+# Ensure script stops when commands fail.
+set -e
+
+cd "$(dirname "$0")";
+echo "$(whoami)@$(hostname):$PWD"
+
+# Function to log messages to the log file
+log_message() {
+  echo "$(date +'%Y-%m-%d %H:%M:%S') - $1" >> $LOG_FILE # this logs the custom messages to the log file
+}
+
+log_message "Initial Local Cleanup started."
+# Clean up all backup files generated in host server
+rm -rf /root/rails/backups/*
+log_message "Initial Local Cleanup finished."
+
+# Main script
+log_message "Backup started."
+log_message "Backup file: $filename"
+log_message "Backup url: $url"
+
+# Setup files names and paths
+ts=$(date '+%Y%m%d-%H%M%S');
+orig_filepath="/root/rails/storage/production.sqlite3";
+filename="production.sqlite3";
+
+orig_filepath_queue="/root/rails/storage/production_queue.sqlite3";
+filename_queue="production_queue.sqlite3";
+
+orig_filepath_cache="/root/rails/storage/production_cache.sqlite3";
+filename_cache="production_cache.sqlite3";
+
+orig_filepath_cable="/root/rails/storage/production_cable.sqlite3";
+filename_cable="production_cable.sqlite3";
+
+
+# Backup & compress our database to the temp directory.
+sqlite3 $orig_filepath "VACUUM INTO '/root/rails/backups/${filename}'"
+sqlite3 $orig_filepath_queue "VACUUM INTO '/root/rails/backups/${filename_queue}'"
+sqlite3 $orig_filepath_cache "VACUUM INTO '/root/rails/backups/${filename_cache}'"
+sqlite3 $orig_filepath_cable "VACUUM INTO '/root/rails/backups/${filename_cable}'"
+
+
+# Create a tarball and gzip it
+final_file_name="${ts}.tar.gz"
+final_tar_path="/root/rails/backups/$final_file_name"
+tar -czf $final_tar_path -C /root/rails/backups "${filename}" "${filename_queue}" "${filename_cache}" "${filename_cable}"
+
+url=https://$BUNNY_REGION.storage.bunnycdn.com/$BUNNY_STORAGE_ZONE_NAME/weblog/db_backups/$final_file_name;
+
+# This sends the generated tar file to BunnyCDN storage.
+# Those env vars are available on HOST
+curl --request PUT \
+     --url $url \
+     --header "AccessKey: $BUNNY_STORAGE_API_KEY" \
+     --header 'Content-Type: application/octet-stream' \
+     --header 'accept: application/json' \
+     --data-binary @$final_tar_path # @ is used to send the file as binary
+     # without @, curl will send the filename string as the data
+
+log_message "Backup finished."
+
+log_message "Final Local Cleanup started."
+# Clean up all backup files generated in host server
+rm -rf /root/rails/backups/*
+log_message "Final Local Cleanup finished."
+
+log_message "Remote Cleanup started."
+days=${DB_BACKUP_DAYS_RETENTION:-7}
+date_in_the_past=$(date -d "$days days ago" +"%Y-%m-%dT%H:%M:%S.000")
+path="weblog/db_backups/"
+url=https://$BUNNY_REGION.storage.bunnycdn.com/$BUNNY_STORAGE_ZONE_NAME/$path
+
+log_message "Fetching old entries from Bunny."
+log_message "Delete files older than $date_in_the_past"
+
+curl --request GET \
+     --url $url \
+     --header "AccessKey: $BUNNY_STORAGE_API_KEY" \
+     --header 'accept: application/json' | jq -r ".[] | select(.DateCreated < \"$date_in_the_past\") | .ObjectName" > object_names.txt
+
+log_message "Files to cleanup:"
+log_message "object_names.txt"
+
+# for each object_name in object_names.txt
+# get the object_name value and delete the object
+while IFS= read -r object_name
+do
+  curl --request DELETE \
+       --url $url$object_name \
+       --header "AccessKey: $BUNNY_STORAGE_API_KEY" \
+       --header 'accept: application/json'
+done < object_names.txt
+
+log_message "Remote Cleanup finished."
+
+# To setup a cron task, run this command on the server:
+# vim /etc/crontab
+# Add this line to the file:
+# This means: run the backup_to_bunny script every day at 8:24 PM at the server's timezone
+# 24  20    * * *   root    . /root/.bashrc; /root/backup_to_bunny > /root/cron.log 2>&1
+
+# Send this file to your host server:
+# scp bin/backup_to_bunny root@5.161.243.148:/root/backup_to_bunny
+
+# Setup those env vars in your host:
+# export BUNNY_STORAGE_API_KEY="your_bunny_storage_api_key"
+# export BUNNY_STORAGE_ZONE_NAME="your_bunny_storage_zone_name"
+# export BUNNY_REGION="your_bunny_region"
+# export DB_BACKUP_DAYS_RETENTION="7"
+
+# To check if your cron is running on the server, run this command over there:
+# It will watch the syslog file for any cron-related messages
+# tail -f /var/log/syslog

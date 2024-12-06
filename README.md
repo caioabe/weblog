@@ -25,5 +25,6 @@ Things you may want to cover:
 
 
 # TODO:
-- [ ] Think about data backup
+- [x] Think about data backup
+- [ ] Use Kamal cron instead of the manual workaround defined in backup_to_bunny script
 - [ ] Install open telemetry
