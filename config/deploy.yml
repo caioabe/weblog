@@ -12,6 +12,10 @@ servers:
   #   hosts:
   #     - 192.168.0.1
   #   cmd: bin/jobs
+  cron:
+    hosts:
+      - 5.161.243.148
+    cmd: bash -c "cat config/crontab | crontab - && cron -f"
 
 # Enable SSL auto certification via Let's Encrypt (and allow for multiple apps on one server).
 # Set ssl: false if using something like Cloudflare to terminate SSL (but keep host!).

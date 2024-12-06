@@ -19,6 +19,13 @@ RUN apt-get update -qq && \
     apt-get install --no-install-recommends -y curl libjemalloc2 libvips sqlite3 && \
     rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
+# Install cron
+RUN apt-get update \
+    && DEBIAN_FRONTEND=noninteractive apt-get install \
+    cron \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
 # Set production environment
 ENV RAILS_ENV="production" \
     BUNDLE_DEPLOYMENT="1" \

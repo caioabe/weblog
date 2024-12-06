@@ -1,0 +1,1 @@
+* 23 * * *   root bin/test_cron > /cron.log 2>&1
