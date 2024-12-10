@@ -100,7 +100,9 @@ log_message "Remote Cleanup finished."
 # vim /etc/crontab
 # Add this line to the file:
 # This means: run the backup_to_bunny script every day at 8:24 PM at the server's timezone
-# 24  20    * * *   root    . /root/.bashrc; /root/backup_to_bunny > /root/cron.log 2>&1
+# 24  20    * * *   root    . /root/.bashrc; /root/backup_to_bunny > /root/cron.log 2>&1; curl -d s=$? https://nosnch.in/dd13b1fb17 &> /dev/null
+# note that the last curl is calling https://deadmanssnitch.com/. This is a service that will notify you if the cron job stops running.
+# it's on a free plan, so it will notify you if the cron job stops running after 24 hours (daily)
 
 # Send this file to your host server:
 # scp bin/backup_to_bunny root@5.161.243.148:/root/backup_to_bunny
